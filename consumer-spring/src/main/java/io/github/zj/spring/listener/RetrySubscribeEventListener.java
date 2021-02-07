@@ -1,9 +1,18 @@
 package io.github.zj.spring.listener;
 
 import io.github.zj.DefaultMQPushConsumer;
+import io.github.zj.config.ClientConfig;
 import io.github.zj.exception.MQClientException;
+import io.github.zj.factory.MQClientInstance;
+import io.github.zj.impl.MQClientManager;
+import io.github.zj.remote.ClientApi;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 
 /**
  * @ClassName RetrySubscribeEventListener
@@ -11,7 +20,12 @@ import org.springframework.context.ApplicationListener;
  * @author: zhangjie
  * @Date: 2021/2/7 16:26
  **/
-public class RetrySubscribeEventListener implements ApplicationListener<ApplicationReadyEvent> {
+public class RetrySubscribeEventListener extends ClientConfig implements ApplicationListener<ApplicationReadyEvent>, ApplicationContextAware, EnvironmentAware {
+
+   private ApplicationContext applicationContext;
+
+   private Environment environment;
+
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
         try {
@@ -20,10 +34,26 @@ public class RetrySubscribeEventListener implements ApplicationListener<Applicat
             consumer.subscribe("TopicTest");
             consumer.start();
 
+            //将clientApi注入到MQClientInstance中
+            String clientApiName = environment.getProperty("retry.config.client.datasource.className");
+            ClientApi clientApi = (ClientApi) applicationContext.getBean(clientApiName);
+            changeInstanceNameToPID();
+            MQClientInstance mqClientInstance =  MQClientManager.getInstance().getOrCreateMQClientInstance(this);
+            mqClientInstance.setClientApi(clientApi);
+
         } catch (MQClientException e) {
             e.printStackTrace();
         }
     }
 
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
 }

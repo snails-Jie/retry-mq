@@ -155,6 +155,7 @@ public class MQClientInstance {
         try {
             if (this.lockNamesrv.tryLock(LOCK_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
                 // 从注册中心（mysql）中获取topic下队列信息（对应RocketMQ的TopicRouteData->Set<MessageQueue>）
+                clientApi.getTopicRouteInfo("test");
                 Set<MessageQueue> subscribeInfo = null;
                 Iterator<Map.Entry<String, MQPushConsumer>> it = this.consumerTable.entrySet().iterator();
                 while (it.hasNext()) {

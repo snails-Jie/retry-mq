@@ -1,15 +1,11 @@
 package io.github.zj.spring.config;
 
-import io.github.zj.config.ClientConfig;
-import io.github.zj.factory.MQClientInstance;
-import io.github.zj.impl.MQClientManager;
 import io.github.zj.remote.ClientApi;
 import io.github.zj.remote.ClientApiManager;
 import io.github.zj.spring.listener.RetrySubscribeEventListener;
 import io.github.zj.spring.utils.PropertyBinder;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -32,7 +28,7 @@ import java.util.Objects;
  * @Date: 2021/2/5 17:45
  **/
 @MapperScan({"io.github.zj.spring.dao"})
-public class ConsumerConfig extends ClientConfig implements BeanDefinitionRegistryPostProcessor, EnvironmentAware {
+public class ConsumerConfig  implements BeanDefinitionRegistryPostProcessor, EnvironmentAware {
 
     private final String dataSourceTypeStr = "retry.config.client.datasource.type";
     private final String mysql = "mysql";
@@ -63,12 +59,7 @@ public class ConsumerConfig extends ClientConfig implements BeanDefinitionRegist
             if(clientApi.getClass().getName().equals(consumerProperties.getClassName())){
                 //注册clientApi到spring容器中
                 BeanDefinitionBuilder dataSourceDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(clientApi.getClass());
-                beanFactory.registerBeanDefinition(clientApi.getClass().getSimpleName(),dataSourceDefinitionBuilder.getRawBeanDefinition());
-
-                //将clientApi注入到MQClientInstance中
-                String clientId = buildMQClientId();
-                MQClientInstance mqClientInstance =  MQClientManager.getInstance().getFactoryTable().get(clientId);
-                mqClientInstance.setClientApi(clientApi);
+                beanFactory.registerBeanDefinition(consumerProperties.getClassName(),dataSourceDefinitionBuilder.getRawBeanDefinition());
                 break;
             }
         }
