@@ -1,5 +1,6 @@
 package io.github.zj.spring.listener;
 
+import io.github.zj.ConsumeFromWhere;
 import io.github.zj.DefaultMQPushConsumer;
 import io.github.zj.config.ClientConfig;
 import io.github.zj.exception.MQClientException;
@@ -32,6 +33,7 @@ public class RetrySubscribeEventListener extends ClientConfig implements Applica
             //启动消费者
             DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("test");
             consumer.subscribe("TopicTest");
+            consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
             consumer.start();
 
             //将clientApi注入到MQClientInstance中

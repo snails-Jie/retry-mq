@@ -1,5 +1,7 @@
 package io.github.zj.message;
 
+import java.util.Objects;
+
 /**
  * @ClassName MessageQueue
  * @Description: 消息队列
@@ -36,6 +38,20 @@ public class MessageQueue implements Comparable<MessageQueue> {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MessageQueue)) return false;
+        MessageQueue that = (MessageQueue) o;
+        return topic.equals(that.topic) &&
+                brokerName.equals(that.brokerName) &&
+                queueId.equals(that.queueId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(topic, brokerName, queueId);
+    }
 
     @Override
     public int compareTo(MessageQueue o) {

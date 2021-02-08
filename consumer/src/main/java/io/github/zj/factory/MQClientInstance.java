@@ -1,6 +1,7 @@
 package io.github.zj.factory;
 
 import io.github.zj.MQPushConsumer;
+import io.github.zj.PullMessageService;
 import io.github.zj.RebalanceService;
 import io.github.zj.common.ServiceState;
 import io.github.zj.common.SubscriptionData;
@@ -34,6 +35,8 @@ public class MQClientInstance {
 
     private final String clientId;
 
+    private final PullMessageService pullMessageService;
+
 
 
     /** 消费组 -> 消费实例  */
@@ -47,8 +50,10 @@ public class MQClientInstance {
     });
 
     public MQClientInstance(String clientId){
-        this.rebalanceService = new RebalanceService(this);
         this.clientId = clientId;
+
+        this.rebalanceService = new RebalanceService(this);
+        this.pullMessageService = new PullMessageService(this);
     }
 
     /**
@@ -190,6 +195,9 @@ public class MQClientInstance {
         return clientApi.findConsumerIdList(group);
     }
 
+    public ClientApi getClientApi() {
+        return clientApi;
+    }
 
     public void setClientApi(ClientApi clientApi) {
         this.clientApi = clientApi;
@@ -198,4 +206,10 @@ public class MQClientInstance {
     public String getClientId() {
         return clientId;
     }
+
+    public PullMessageService getPullMessageService() {
+        return pullMessageService;
+    }
+
+
 }

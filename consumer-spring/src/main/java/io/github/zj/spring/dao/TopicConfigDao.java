@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName TopicConfigDao
@@ -18,4 +19,6 @@ public interface TopicConfigDao {
      List<MessageQueue> queryInfo(@Param("topicName") String topicName);
 
      List<String> findConsumerIdList(@Param("group")String group);
+
+     Long fetchConsumeOffset(Map params);
 }

@@ -21,4 +21,12 @@ public interface ClientApi {
      * @return 消费者ID列表
      */
     List<String> findConsumerIdList(final String group);
+
+    /**
+     * 读取队列的消费进度
+     * @param groupName
+     * @param mq
+     * @return
+     */
+    Long fetchConsumeOffset(String groupName,MessageQueue mq);
 }

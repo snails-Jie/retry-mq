@@ -8,6 +8,8 @@ import io.github.zj.factory.MQClientInstance;
 import io.github.zj.impl.MQClientManager;
 import io.github.zj.message.MessageQueue;
 import io.github.zj.rebalance.AllocateMessageQueueAveragely;
+import io.github.zj.store.OffsetStore;
+import io.github.zj.store.RemoteBrokerOffsetStore;
 
 import java.util.HashSet;
 import java.util.List;
@@ -28,9 +30,13 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
 
     private MessageModel messageModel = MessageModel.CLUSTERING;
 
-    private final RebalancePushImpl rebalanceImpl = new RebalancePushImpl(messageModel);
+    private final RebalancePushImpl rebalanceImpl = new RebalancePushImpl(this);
 
     private AllocateMessageQueueStrategy allocateMessageQueueStrategy;
+
+    private OffsetStore offsetStore;
+
+    private ConsumeFromWhere consumeFromWhere = ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET;
 
     public DefaultMQPushConsumer(final String consumerGroup){
         this(consumerGroup,new AllocateMessageQueueAveragely());
@@ -43,16 +49,20 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
 
     @Override
     public void start() throws MQClientException {
-        if (this.getMessageModel() == MessageModel.CLUSTERING) {
-            this.changeInstanceNameToPID();
-        }
-
-        /** 设置队列负载均衡配置 start */
+        this.changeInstanceNameToPID();
         this.mQClientFactory = MQClientManager.getInstance().getOrCreateMQClientInstance(this);
+
+        /** 配置消费进度管理 start */
+        this.offsetStore = new RemoteBrokerOffsetStore(this.mQClientFactory,consumerGroup);
+        /** 配置消费进度管理 end */
+
+        /** 配置队列负载均衡配置 start */
         rebalanceImpl.setMQClientFactory(mQClientFactory);
         rebalanceImpl.setConsumerGroup(consumerGroup);
+        rebalanceImpl.setMessageModel(messageModel);
         rebalanceImpl.setAllocateMessageQueueStrategy(allocateMessageQueueStrategy);
         /** 设置队列负载均衡配置 end */
+
 
         boolean registerOK = mQClientFactory.registerConsumer( this.consumerGroup, this);
         if (!registerOK) {
@@ -92,6 +102,10 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
         }
     }
 
+    public void executePullRequestImmediately(final PullRequest pullRequest) {
+        this.mQClientFactory.getPullMessageService().executePullRequestImmediately(pullRequest);
+    }
+
     public ConcurrentMap<String, SubscriptionData> getSubscriptionInner() {
         return this.rebalanceImpl.getSubscriptionInner();
     }
@@ -102,5 +116,17 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
 
     public void setMessageModel(MessageModel messageModel) {
         this.messageModel = messageModel;
+    }
+
+    public OffsetStore getOffsetStore() {
+        return offsetStore;
+    }
+
+    public ConsumeFromWhere getConsumeFromWhere() {
+        return consumeFromWhere;
+    }
+
+    public void setConsumeFromWhere(ConsumeFromWhere consumeFromWhere) {
+        this.consumeFromWhere = consumeFromWhere;
     }
 }

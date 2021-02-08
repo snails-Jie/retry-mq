@@ -6,7 +6,9 @@ import io.github.zj.remote.ClientApiManager;
 import io.github.zj.spring.dao.TopicConfigDao;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName MySqlClientApi
@@ -32,5 +34,14 @@ public class MySqlClientApi implements ClientApi {
     @Override
     public List<String> findConsumerIdList(String group) {
         return topicConfigDao.findConsumerIdList(group);
+    }
+
+    @Override
+    public Long fetchConsumeOffset(String groupName,MessageQueue mq) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("groupName",groupName);
+        param.put("topic",mq.getTopic());
+        param.put("queueId",mq.getQueueId());
+        return topicConfigDao.fetchConsumeOffset(param);
     }
 }

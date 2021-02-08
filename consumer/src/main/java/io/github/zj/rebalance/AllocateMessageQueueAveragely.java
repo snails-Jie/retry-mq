@@ -13,6 +13,7 @@ import java.util.List;
  * @Date: 2021/2/8 10:07
  **/
 public class AllocateMessageQueueAveragely implements AllocateMessageQueueStrategy {
+
     @Override
     public List<MessageQueue> allocate(String consumerGroup, String currentCID, List<MessageQueue> mqAll, List<String> cidAll) {
         if (currentCID == null || currentCID.length() < 1) {

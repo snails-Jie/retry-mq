@@ -42,4 +42,6 @@ public interface MQPushConsumer {
      * @param info
      */
     void updateTopicSubscribeInfo(final String topic, final List<MessageQueue> info);
+
+
 }

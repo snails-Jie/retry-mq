@@ -8,4 +8,8 @@
     <select id="findConsumerIdList" resultType="java.lang.String">
         SELECT client_id FROM t_consumer_group_config WHERE group_name = #{group}
     </select>
+
+    <select id="fetchConsumeOffset" resultType="java.lang.Long">
+        SELECT offset FROM t_consumer_offset WHERE consumer_group = #{groupName} AND topic = #{topic} AND queue_Id = #{queueId};
+    </select>
 </mapper>
