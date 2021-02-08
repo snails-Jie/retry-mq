@@ -1,11 +1,12 @@
 package io.github.zj.spring.remote;
 
-import io.github.zj.common.protocol.route.TopicRouteData;
+import io.github.zj.message.MessageQueue;
 import io.github.zj.remote.ClientApi;
 import io.github.zj.remote.ClientApiManager;
 import io.github.zj.spring.dao.TopicConfigDao;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @ClassName MySqlClientApi
@@ -24,8 +25,12 @@ public class MySqlClientApi implements ClientApi {
 
 
     @Override
-    public TopicRouteData getTopicRouteInfo(String topic) {
-        String topicInfo = topicConfigDao.queryInfo(topic);
-        return null;
+    public List<MessageQueue> getTopicRouteInfo(String topic) {
+        return topicConfigDao.queryInfo(topic);
+    }
+
+    @Override
+    public List<String> findConsumerIdList(String group) {
+        return topicConfigDao.findConsumerIdList(group);
     }
 }

@@ -1,7 +1,10 @@
 package io.github.zj.spring.dao;
 
+import io.github.zj.message.MessageQueue;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @ClassName TopicConfigDao
@@ -11,5 +14,8 @@ import org.apache.ibatis.annotations.Param;
  **/
 @Mapper
 public interface TopicConfigDao {
-     String queryInfo(@Param("topicName") String topicName);
+
+     List<MessageQueue> queryInfo(@Param("topicName") String topicName);
+
+     List<String> findConsumerIdList(@Param("group")String group);
 }

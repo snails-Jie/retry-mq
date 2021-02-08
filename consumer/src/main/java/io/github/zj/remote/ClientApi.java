@@ -1,6 +1,8 @@
 package io.github.zj.remote;
 
-import io.github.zj.common.protocol.route.TopicRouteData;
+import io.github.zj.message.MessageQueue;
+
+import java.util.List;
 
 /**
  * @author zhangjie
@@ -11,5 +13,12 @@ public interface ClientApi {
      * @param topic 主题
      * @return
      */
-    TopicRouteData getTopicRouteInfo(final String topic);
+    List<MessageQueue> getTopicRouteInfo(final String topic);
+
+    /**
+     * 根据消费组名查询消费者ID列表
+     * @param group 消费组
+     * @return 消费者ID列表
+     */
+    List<String> findConsumerIdList(final String group);
 }

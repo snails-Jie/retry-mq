@@ -4,6 +4,7 @@ import io.github.zj.common.SubscriptionData;
 import io.github.zj.exception.MQClientException;
 import io.github.zj.message.MessageQueue;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -35,6 +36,10 @@ public interface MQPushConsumer {
      */
     Set<SubscriptionData> subscriptions();
 
-
-    void updateTopicSubscribeInfo(final String topic, final Set<MessageQueue> info);
+    /**
+     * 更新主题下的队列信息
+     * @param topic
+     * @param info
+     */
+    void updateTopicSubscribeInfo(final String topic, final List<MessageQueue> info);
 }

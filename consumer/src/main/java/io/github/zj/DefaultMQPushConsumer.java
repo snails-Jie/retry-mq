@@ -7,8 +7,10 @@ import io.github.zj.exception.MQClientException;
 import io.github.zj.factory.MQClientInstance;
 import io.github.zj.impl.MQClientManager;
 import io.github.zj.message.MessageQueue;
+import io.github.zj.rebalance.AllocateMessageQueueAveragely;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -28,8 +30,15 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
 
     private final RebalancePushImpl rebalanceImpl = new RebalancePushImpl(messageModel);
 
+    private AllocateMessageQueueStrategy allocateMessageQueueStrategy;
+
     public DefaultMQPushConsumer(final String consumerGroup){
+        this(consumerGroup,new AllocateMessageQueueAveragely());
+    }
+
+    public DefaultMQPushConsumer(final String consumerGroup,AllocateMessageQueueStrategy allocateMessageQueueStrategy){
         this.consumerGroup = consumerGroup;
+        this.allocateMessageQueueStrategy = allocateMessageQueueStrategy;
     }
 
     @Override
@@ -37,7 +46,13 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
         if (this.getMessageModel() == MessageModel.CLUSTERING) {
             this.changeInstanceNameToPID();
         }
+
+        /** 设置队列负载均衡配置 start */
         this.mQClientFactory = MQClientManager.getInstance().getOrCreateMQClientInstance(this);
+        rebalanceImpl.setMQClientFactory(mQClientFactory);
+        rebalanceImpl.setConsumerGroup(consumerGroup);
+        rebalanceImpl.setAllocateMessageQueueStrategy(allocateMessageQueueStrategy);
+        /** 设置队列负载均衡配置 end */
 
         boolean registerOK = mQClientFactory.registerConsumer( this.consumerGroup, this);
         if (!registerOK) {
@@ -68,7 +83,7 @@ public class DefaultMQPushConsumer extends ClientConfig implements MQPushConsume
     }
 
     @Override
-    public void updateTopicSubscribeInfo(String topic, Set<MessageQueue> info) {
+    public void updateTopicSubscribeInfo(String topic, List<MessageQueue> info) {
         Map<String, SubscriptionData> subTable = this.getSubscriptionInner();
         if (subTable != null) {
             if (subTable.containsKey(topic)) {

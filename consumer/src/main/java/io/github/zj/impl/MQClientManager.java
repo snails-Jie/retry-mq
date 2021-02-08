@@ -18,10 +18,6 @@ public class MQClientManager {
 
     private ConcurrentMap<String, MQClientInstance> factoryTable = new ConcurrentHashMap<String, MQClientInstance>();
 
-    public ConcurrentMap<String, MQClientInstance> getFactoryTable() {
-        return factoryTable;
-    }
-
     /** 单例 */
     public static MQClientManager getInstance() {
         return instance;
@@ -31,7 +27,7 @@ public class MQClientManager {
         String clientId = clientConfig.buildMQClientId();
         MQClientInstance instance = this.factoryTable.get(clientId);
         if (null == instance) {
-            instance = new MQClientInstance();
+            instance = new MQClientInstance(clientId);
             MQClientInstance prev = this.factoryTable.putIfAbsent(clientId, instance);
             if (prev != null) {
                 instance = prev;

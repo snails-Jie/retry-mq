@@ -7,10 +7,7 @@ import io.github.zj.common.SubscriptionData;
 import io.github.zj.message.MessageQueue;
 import io.github.zj.remote.ClientApi;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -35,19 +32,23 @@ public class MQClientInstance {
 
     private final static long LOCK_TIMEOUT_MILLIS = 3000;
 
+    private final String clientId;
+
 
 
     /** 消费组 -> 消费实例  */
     private final ConcurrentMap<String, MQPushConsumer> consumerTable = new ConcurrentHashMap<String, MQPushConsumer>();
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+        @Override
         public Thread newThread(Runnable r) {
             return new Thread(r,"MQClientFactoryScheduledThread");
         }
     });
 
-    public MQClientInstance(){
+    public MQClientInstance(String clientId){
         this.rebalanceService = new RebalanceService(this);
+        this.clientId = clientId;
     }
 
     /**
@@ -77,6 +78,7 @@ public class MQClientInstance {
 
     private void startScheduledTask() {
        this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+           @Override
            public void run() {
                MQClientInstance.this.updateTopicRouteInfoFromNameServer();
            }
@@ -155,8 +157,8 @@ public class MQClientInstance {
         try {
             if (this.lockNamesrv.tryLock(LOCK_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
                 // 从注册中心（mysql）中获取topic下队列信息（对应RocketMQ的TopicRouteData->Set<MessageQueue>）
-                clientApi.getTopicRouteInfo("test");
-                Set<MessageQueue> subscribeInfo = null;
+                List<MessageQueue> subscribeInfo = clientApi.getTopicRouteInfo(topic);
+
                 Iterator<Map.Entry<String, MQPushConsumer>> it = this.consumerTable.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry<String, MQPushConsumer> entry = it.next();
@@ -165,6 +167,7 @@ public class MQClientInstance {
                         impl.updateTopicSubscribeInfo(topic, subscribeInfo);
                     }
                 }
+                return true;
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -172,8 +175,27 @@ public class MQClientInstance {
         return false;
     }
 
+    /**
+     * 原rocketMq逻辑：
+     *   1. topic -> brokerAddr(topicRouteTable)
+     *      1.1 一个topic下有多个broker
+     *   2. 向broker中获取消费组的消费者数
+     * @param group
+     * @return
+     */
+    public List<String> findConsumerIdList(final String group) {
+        if(group == null){
+            return null;
+        }
+        return clientApi.findConsumerIdList(group);
+    }
+
 
     public void setClientApi(ClientApi clientApi) {
         this.clientApi = clientApi;
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 }
