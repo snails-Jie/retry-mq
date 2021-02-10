@@ -37,8 +37,6 @@ public class MQClientInstance {
 
     private final PullMessageService pullMessageService;
 
-
-
     /** 消费组 -> 消费实例  */
     private final ConcurrentMap<String, MQPushConsumer> consumerTable = new ConcurrentHashMap<String, MQPushConsumer>();
 
@@ -51,7 +49,6 @@ public class MQClientInstance {
 
     public MQClientInstance(String clientId){
         this.clientId = clientId;
-
         this.rebalanceService = new RebalanceService(this);
         this.pullMessageService = new PullMessageService(this);
     }
@@ -71,7 +68,8 @@ public class MQClientInstance {
 
                 // 队列负载均衡服务
                 this.rebalanceService.start();
-
+                // 队列消息拉取服务
+                this.pullMessageService.start();
                 /** 启动一系列线程服务  end*/
 
                 this.serviceState = ServiceState.RUNNING;
@@ -195,6 +193,10 @@ public class MQClientInstance {
         return clientApi.findConsumerIdList(group);
     }
 
+    public MQPushConsumer selectConsumer(final String group) {
+        return this.consumerTable.get(group);
+    }
+
     public ClientApi getClientApi() {
         return clientApi;
     }
@@ -210,6 +212,5 @@ public class MQClientInstance {
     public PullMessageService getPullMessageService() {
         return pullMessageService;
     }
-
 
 }

@@ -35,10 +35,22 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
         }
     }
 
+    /**
+     * 读取队列消费进度
+     * 1. 在负载队列线程：RebalancePushImpl中type为READ_FROM_STORE
+     * 2. 在拉取消息线程：PullMessageService中type为READ_FROM_MEMORY
+     */
     @Override
     public long readOffset(MessageQueue mq, ReadOffsetType type) {
         if (mq != null) {
             switch (type) {
+                case READ_FROM_MEMORY:{
+                    AtomicLong offset = this.offsetTable.get(mq);
+                    if (offset != null) {
+                        return offset.get();
+                    }
+                    return -1;
+                }
                 case READ_FROM_STORE: {
                     long brokerOffset = this.fetchConsumeOffsetFromBroker(mq);
                     AtomicLong offset = new AtomicLong(brokerOffset);

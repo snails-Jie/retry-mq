@@ -1,5 +1,8 @@
 package io.github.zj.spring.dao;
 
+import io.github.zj.PullResult;
+import io.github.zj.common.protocol.header.PullMessageRequestHeader;
+import io.github.zj.message.MessageExt;
 import io.github.zj.message.MessageQueue;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -21,4 +24,12 @@ public interface TopicConfigDao {
      List<String> findConsumerIdList(@Param("group")String group);
 
      Long fetchConsumeOffset(Map params);
+
+     /**
+      * 批量拉取消息
+      * @param pullMessageRequest
+      * @return
+      */
+     List<MessageExt> pullMessage(PullMessageRequestHeader pullMessageRequest);
+
 }

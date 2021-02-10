@@ -1,5 +1,8 @@
 package io.github.zj.remote;
 
+import io.github.zj.PullCallback;
+import io.github.zj.PullResult;
+import io.github.zj.common.protocol.header.PullMessageRequestHeader;
 import io.github.zj.message.MessageQueue;
 
 import java.util.List;
@@ -29,4 +32,12 @@ public interface ClientApi {
      * @return
      */
     Long fetchConsumeOffset(String groupName,MessageQueue mq);
+
+    /**
+     * 拉取消息
+     * @param requestHeader 拉取消息参数
+     * @param pullCallback 回调函数
+     * @return
+     */
+     void pullMessage(final PullMessageRequestHeader requestHeader, final PullCallback pullCallback);
 }

@@ -6,6 +6,10 @@ import io.github.zj.config.ClientConfig;
 import io.github.zj.exception.MQClientException;
 import io.github.zj.factory.MQClientInstance;
 import io.github.zj.impl.MQClientManager;
+import io.github.zj.listener.ConsumeConcurrentlyContext;
+import io.github.zj.listener.ConsumeConcurrentlyStatus;
+import io.github.zj.listener.MessageListener;
+import io.github.zj.message.MessageExt;
 import io.github.zj.remote.ClientApi;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -14,6 +18,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
+
+import java.util.List;
 
 /**
  * @ClassName RetrySubscribeEventListener
@@ -34,6 +40,13 @@ public class RetrySubscribeEventListener extends ClientConfig implements Applica
             DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("test");
             consumer.subscribe("TopicTest");
             consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+            consumer.setMessageListenerInner(new MessageListener() {
+                @Override
+                public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
+                    System.out.println(msgs.size());
+                    return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+                }
+            });
             consumer.start();
 
             //将clientApi注入到MQClientInstance中
