@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.github.zj.spring.dao.TopicConfigDao" >
+
+    <select id="readConsumerGroupMetadata" resultType="io.github.zj.message.ConsumerGroupMetadata">
+        SELECT topic bindingTopic,consume_from consumeFrom FROM `t_topic_consumer_config` WHERE consumer_group = 'test';
+    </select>
+
     <select id="queryInfo" resultType="io.github.zj.message.MessageQueue">
         SELECT topic,broker_name brokerName,queue_id queueId FROM `t_queue_data` WHERE topic = #{topicName};
     </select>
@@ -12,6 +17,11 @@
     <select id="fetchConsumeOffset" resultType="java.lang.Long">
         SELECT offset FROM t_consumer_offset WHERE consumer_group = #{groupName} AND topic = #{topic} AND queue_Id = #{queueId};
     </select>
+
+    <update id="updateConsumeOffset" parameterType="io.github.zj.common.protocol.header.PullMessageRequestHeader">
+        UPDATE t_consumer_offset SET `offset` = #{queueOffset}
+            WHERE topic = #{topic} AND consumer_group = #{consumerGroup} AND queue_Id = #{queueId}
+    </update>
 
     <select id="pullMessage" resultType="io.github.zj.message.MessageExt" parameterType="io.github.zj.common.protocol.header.PullMessageRequestHeader">
         SELECT id queueOffset,content FROM t_consumer_message WHERE type = #{queueId} limit #{queueOffset},#{batchPullSize};

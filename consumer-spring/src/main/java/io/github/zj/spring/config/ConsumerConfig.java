@@ -79,12 +79,17 @@ public class ConsumerConfig  implements BeanDefinitionRegistryPostProcessor, Env
     }
 
     /**
-     * 1. 注册重试订阅器
+     * 1. 注册重试订阅注解扫描器:RetryMqListenerInitialization
+     * 2. 注册重试订阅监听器:RetrySubscribeEventListener
      * @param beanFactory
      */
     public void registerBeans(BeanDefinitionRegistry beanFactory) {
+        BeanDefinitionBuilder retryMqListenerInitializationBuilder = BeanDefinitionBuilder.genericBeanDefinition(RetryMqListenerInitialization.class);
+        beanFactory.registerBeanDefinition(RetryMqListenerInitialization.class.getSimpleName(),retryMqListenerInitializationBuilder.getBeanDefinition());
+
         BeanDefinitionBuilder retrySubscribeEventListenerDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(RetrySubscribeEventListener.class);
         beanFactory.registerBeanDefinition(RetrySubscribeEventListener.class.getSimpleName(),retrySubscribeEventListenerDefinitionBuilder.getBeanDefinition());
+
     }
 
     /** 暂时忽略 */

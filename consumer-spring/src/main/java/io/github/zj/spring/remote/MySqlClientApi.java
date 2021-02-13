@@ -3,6 +3,7 @@ package io.github.zj.spring.remote;
 import io.github.zj.PullCallback;
 import io.github.zj.PullResult;
 import io.github.zj.common.protocol.header.PullMessageRequestHeader;
+import io.github.zj.message.ConsumerGroupMetadata;
 import io.github.zj.message.MessageExt;
 import io.github.zj.message.MessageQueue;
 import io.github.zj.remote.ClientApi;
@@ -32,6 +33,11 @@ public class MySqlClientApi implements ClientApi {
     @Resource
     private TopicConfigDao topicConfigDao;
 
+
+    @Override
+    public ConsumerGroupMetadata readConsumerGroupMetadata(String consumerGroup) {
+        return topicConfigDao.readConsumerGroupMetadata(consumerGroup);
+    }
 
     @Override
     public List<MessageQueue> getTopicRouteInfo(String topic) {
@@ -79,10 +85,16 @@ public class MySqlClientApi implements ClientApi {
         List<MessageExt>  mgsList  = topicConfigDao.pullMessage(pullMessageRequest);
         Optional<MessageExt> maxOptional = mgsList.stream().max(Comparator.comparing(MessageExt::getQueueOffset));
         if(maxOptional.isPresent()){
+            pullMessageRequest.setQueueOffset(maxOptional.get().getQueueOffset());
+            topicConfigDao.updateConsumeOffset(pullMessageRequest);
+
             pullResult.setNextBeginOffset(maxOptional.get().getQueueOffset());
             pullResult.setMsgFoundList(mgsList);
             return pullResult;
+        }else{
+            pullResult.setNextBeginOffset(pullMessageRequest.getQueueOffset());
+            return pullResult;
         }
-        return pullResult;
+
     }
 }

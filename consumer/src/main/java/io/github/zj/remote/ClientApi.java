@@ -3,6 +3,7 @@ package io.github.zj.remote;
 import io.github.zj.PullCallback;
 import io.github.zj.PullResult;
 import io.github.zj.common.protocol.header.PullMessageRequestHeader;
+import io.github.zj.message.ConsumerGroupMetadata;
 import io.github.zj.message.MessageQueue;
 
 import java.util.List;
@@ -11,6 +12,9 @@ import java.util.List;
  * @author zhangjie
  */
 public interface ClientApi {
+
+    ConsumerGroupMetadata readConsumerGroupMetadata(final String consumerGroup);
+
     /**
      * 获取主题路由信息
      * @param topic 主题

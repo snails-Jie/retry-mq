@@ -1,7 +1,7 @@
 package io.github.zj.spring.dao;
 
-import io.github.zj.PullResult;
 import io.github.zj.common.protocol.header.PullMessageRequestHeader;
+import io.github.zj.message.ConsumerGroupMetadata;
 import io.github.zj.message.MessageExt;
 import io.github.zj.message.MessageQueue;
 import org.apache.ibatis.annotations.Mapper;
@@ -19,11 +19,15 @@ import java.util.Map;
 @Mapper
 public interface TopicConfigDao {
 
+     ConsumerGroupMetadata readConsumerGroupMetadata(@Param("consumerGroup") String consumerGroup);
+
      List<MessageQueue> queryInfo(@Param("topicName") String topicName);
 
      List<String> findConsumerIdList(@Param("group")String group);
 
      Long fetchConsumeOffset(Map params);
+
+     void updateConsumeOffset(PullMessageRequestHeader pullMessageRequest);
 
      /**
       * 批量拉取消息
@@ -31,5 +35,7 @@ public interface TopicConfigDao {
       * @return
       */
      List<MessageExt> pullMessage(PullMessageRequestHeader pullMessageRequest);
+
+
 
 }
