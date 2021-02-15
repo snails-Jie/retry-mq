@@ -66,7 +66,9 @@ public class ConsumerConfig  implements BeanDefinitionRegistryPostProcessor, Env
     }
 
 
-
+    /**
+     * 将配置载入指定对象中
+     */
     private <T> T loadSingleConfig(Environment env, Class<T> target){
         PropertyBinder propertyBinder = new PropertyBinder((ConfigurableEnvironment)env);
         BindResult<String> dataSourceType = propertyBinder.bind(dataSourceTypeStr, String.class);
