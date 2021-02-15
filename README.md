@@ -4,6 +4,7 @@
 2.  配置文件进行相关配置
     - retry.config.client.datasource.type=mysql
     - retry.config.client.datasource.className=io.github.zj.spring.remote.MySqlClientApi
+3.  对监听方法加上@RetryListener，并对其参数添加@RetryListenerParameter注解
 ### spring的适配
 ![](https://github.com/snails-Jie/retry-mq/blob/master/img/%E8%B0%83%E7%94%A8%E5%BA%8F%E5%88%97%E5%9B%BE.png?raw=true)
 1. RetryMqListenerInitialization
