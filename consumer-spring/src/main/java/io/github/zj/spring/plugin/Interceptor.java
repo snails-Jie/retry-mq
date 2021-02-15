@@ -12,6 +12,15 @@ public class Interceptor implements MethodInterceptor {
         this.methodInterceptor = methodInterceptor;
     }
 
+    /**
+     * 如果方法拦截器存在，就调用拦截器的intercept方法，否则直接调用父类的方法
+     * @param proxy
+     * @param method
+     * @param params
+     * @param methodProxy
+     * @return
+     * @throws Throwable
+     */
     @Override
     public Object intercept(Object proxy, Method method, Object[] params,
                             MethodProxy methodProxy) throws Throwable {

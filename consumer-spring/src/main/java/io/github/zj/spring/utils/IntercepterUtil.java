@@ -15,7 +15,8 @@ import java.util.List;
  */
 public class IntercepterUtil {
 
-    private static final String INTERCEPTOR_FILE_NAME="com.zto.titans.common.plugin.Interceptor";
+    // 暂未使用
+    private static final String INTERCEPTOR_FILE_NAME="io.github.zj.plugin.Interceptor";
 
 
     /**
